@@ -12,8 +12,8 @@ import random as ran
 import math
 import time
 
-filename = "Supermarket.xlsx"
-dataSel = pandas.read_excel(filename, parse_cols = "W:AL")
+filename = "Supermarket_cleaned.xlsx"
+dataSel = pandas.read_excel(filename, parse_cols = "Q:AC")
 data = dataSel.values.tolist()
 lines = len(data)
 columns = len(data[0])

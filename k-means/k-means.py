@@ -25,6 +25,7 @@ centroids = []
 assignedCluster = []
 newCentroids = []
 
+maxClusters = 15
 maxIterations = 300
 
 
@@ -110,4 +111,5 @@ def calculateSumSquaredError (data, centroids, assignedCentroids, lNorm):
 
     
 #calling the function
+for k in range (1, maxClusters+1):
     kmeans(data, k, centroids, assignedCluster, newCentroids)

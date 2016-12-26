@@ -9,6 +9,8 @@ Created on Wed Dec 21 21:33:36 2016
 #import the file
 import pandas
 import random as ran
+import math
+import time
 
 filename = "Supermarket.xlsx"
 # parse_cols = "W:AL" for monetary data (cols W-AL in supermarket dataset)
@@ -25,7 +27,6 @@ newCentroids = []
 
 maxClusters = 5
 maxIterations = 300
-
 
 #main function, kmeans
 def kmeans(data, k, centroids, assignedCluster, newCentroids):
@@ -137,6 +138,11 @@ def plotClusters(centroids, points):
 #calling the function
 SSE = []
 for k in range (1, maxClusters+1):
+    #startpoint to measure the runtime
+    startTime = time.time()
     SSE.append(kmeans(data, k, centroids, assignedCluster, newCentroids))
+    #finish to measure the runtime
+    elapsedTime = time.time() - startTime
+    print('The runtime is: ' + str(elapsedTime))
     
 plotClusters([k for k in range (1, maxClusters+1)], SSE)

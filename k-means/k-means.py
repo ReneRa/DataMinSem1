@@ -11,6 +11,8 @@ import pandas
 import random as ran
 import math
 import time
+import matplotlib.pyplot as plt
+
 
 filename = "Supermarket.xlsx"
 # parse_cols = "W:AL" for monetary data (cols W-AL in supermarket dataset)
@@ -25,7 +27,7 @@ centroids = []
 assignedCluster = []
 newCentroids = []
 
-maxClusters = 5
+maxClusters = 10
 maxIterations = 300
 
 #main function, kmeans
@@ -144,5 +146,10 @@ for k in range (1, maxClusters+1):
     #finish to measure the runtime
     elapsedTime = time.time() - startTime
     print('The runtime is: ' + str(elapsedTime))
-    
-plotClusters([k for k in range (1, maxClusters+1)], SSE)
+
+plt.plot([k for k in range (1, maxClusters+1)], SSE); 
+plt.xlabel('#Clusters')
+plt.ylabel('SSE')
+plt.title('Elbow Graph')   
+plt.show();
+#plotClusters([k for k in range (1, maxClusters+1)], SSE)

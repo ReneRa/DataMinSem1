@@ -15,11 +15,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-
-filename = "Supermarket_cleaned.xlsx"
-# parse_cols = "W:AL" for monetary data (cols Q-AC in supermarket dataset)
-dataSel = pandas.read_excel(filename, parse_cols = "Q:AC")
-
+filename = "Supermarket.xlsx"
+# parse_cols = "W:AL" for monetary data (cols W-AL in supermarket dataset)
+dataSel = pandas.read_excel(filename, parse_cols = "W:AL")
 data = dataSel.values.tolist()
 lines = len(data)
 columns = len(data[0])
@@ -30,7 +28,7 @@ centroids = []
 assignedCluster = []
 newCentroids = []
 
-maxClusters = 30
+maxClusters = 10
 maxIterations = 300
 
 #main function, kmeans
@@ -54,9 +52,9 @@ def kmeans(data, k, centroids, assignedCluster, newCentroids):
         #print(centroids)
         #print (assignedCluster)
    # print ("\nSSE for k = " + str(k) + ": ")
-   # SSE = calculateSumSquaredError(data, centroids, assignedCluster, 2)
+   SSE = calculateSumSquaredError(data, centroids, assignedCluster, 2)
    # print (SSE)
-   return centroids, assignedCluster
+   return SSE
    
 
 #TODO: make sure the same point is not picked twice? - could be an improvement as well...
@@ -104,12 +102,12 @@ def recalculate_Centroids (newCentroids, data, assignedCluster, k):
         newCentroids.append([x / listLength if sum else 0  for x in sumarray])
     return newCentroids
     
-def calculateSumSquaredError (data, centroids, assignedCluster, lNorm):
+def calculateSumSquaredError (data, centroids, assignedCentroids, lNorm):
     sumSquareDistance = 0
     counter = 0
     while (counter<lines):
         currentData= data[counter]      
-        currentCentroid = centroids[assignedCluster[counter]]
+        currentCentroid = centroids[assignedCentroids[counter]]
         #calculate distance from one datapoint to assigned cluster centroid
         sumSquareDistance = sumSquareDistance + pow(calculate_LDistance(currentData, currentCentroid, lNorm),2)
         counter =counter+1
@@ -118,7 +116,10 @@ def calculateSumSquaredError (data, centroids, assignedCluster, lNorm):
 def createElbowGraph (maxClusters, data):
     SSE = []
     for k in range (1, maxClusters+1):
-        SSE.append(kmeans(data, k, centroids, assignedCluster, newCentroids))
+        #calling the function
+        #SSE.append(kmeans(data, k, centroids, assignedCluster, newCentroids))
+        SSE.append()
+
     plt.plot([numberCluster for numberCluster in range (1, maxClusters+1)], SSE); 
     plt.xlabel('#Clusters')
     plt.ylabel('SSE')
@@ -127,46 +128,20 @@ def createElbowGraph (maxClusters, data):
 
     return
     
-def createBICGraph (maxClusters, data):
-    allBIC = []
-    for k in range (1, maxClusters+1):
-        clusterResult = kmeans(data, k, centroids, assignedCluster, newCentroids)
-        BIC = compute_BIC(data, clusterResult[0], clusterResult[1], k)
-        print ("BIC for k=" + str(k) + ":")
-        print (BIC)
-        allBIC.append(BIC)
-    plt.plot([numberCluster for numberCluster in range (1, maxClusters+1)], allBIC); 
-    plt.xlabel('#Clusters')
-    plt.ylabel('BIC')
-    plt.title('Bayesian Information Criterion Graph')
-    plt.show();
-
-    return
-    
-def getMaximalBIC (maxClusters, data):
-    maximalBICPosition = 1;
-    clusterResult = kmeans(data, maximalBICPosition, centroids, assignedCluster, newCentroids)
-    maximalBIC = compute_BIC(data, clusterResult[0], clusterResult[1], maximalBICPosition)
-    for k in range (2, maxClusters):
-        clusterResult = kmeans(data, k, centroids, assignedCluster, newCentroids)
-        currentBIC = compute_BIC(data, clusterResult[0], clusterResult[1], k)
-        if (currentBIC<=maximalBIC):
-            break
-        else:
-            maximalBIC = currentBIC
-            maximalBICPosition = k
-    return k, maximalBIC
-        
-
-    
-def compute_BIC(data, centroids, assignedCluster, k):
+#from http://stats.stackexchange.com/questions/90769/using-bic-to-estimate-the-number-of-k-in-kmeans
+def compute_bic(data, centroids, assignedCluster, k):
     """
     Computes the BIC metric for a given clusters
 
-    from http://stats.stackexchange.com/questions/90769/using-bic-to-estimate-the-number-of-k-in-kmeans
-    uses library: numpy
-    
-    returns BIC value for one k
+    Parameters:
+    -----------------------------------------
+    kmeans:  List of clustering object from scikit learn
+
+    X     :  multidimension np array of data points
+
+    Returns:
+    -----------------------------------------
+    BIC value
     """
     #number of clusters
     m = k
@@ -182,11 +157,10 @@ def compute_BIC(data, centroids, assignedCluster, k):
         n.append (listLength);
     
     #size of data set
-    N = len(data)
-    d = len(data[0])
+    N, d = data.shape
 
     #compute variance for all clusters beforehand
-    cl_var = (1.0 / (N - m) / d) * calculateSumSquaredError (data, centroids, assignedCluster, 2)
+    cl_var = (1.0 / (N - m) / d) * sum(calculateSumSquaredError(data, centroids, assignedCluster, 2))
 
     const_term = 0.5 * m * np.log(N) * (d+1)
 
@@ -199,8 +173,9 @@ def compute_BIC(data, centroids, assignedCluster, k):
     
     
     
-#createElbowGraph(maxClusters, data)
-createBICGraph(maxClusters, data)
+createElbowGraph(maxClusters, data)
+
+
 
 #startpoint to measure the runtime
 startTime = time.time()

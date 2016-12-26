@@ -40,8 +40,8 @@ def kmeans(data, k, centroids, assignedCluster, newCentroids):
         assignedCluster =[]  #delete values in list
         newCentroids =[]     #delete values in list
         #TODO: assignedCluster not really necessary as param
-        assignedCluster = assign_Centroid(data, centroids, assignedCluster)
-        newCentroids = recalculate_Centroids(newCentroids, data, assignedCluster)
+        assignedCluster = assign_Centroid(data, centroids, assignedCluster, k)
+        newCentroids = recalculate_Centroids(newCentroids, data, assignedCluster, k)
         # recognizing natural finish point
         if centroids == newCentroids: 
             break
@@ -50,9 +50,9 @@ def kmeans(data, k, centroids, assignedCluster, newCentroids):
             assignedCluster = assign_Centroid(data, centroids, assignedCluster)
         #print(centroids)
         #print (assignedCluster)
-   print ("\nSSE for k = " + str(k) + ": ")
+   # print ("\nSSE for k = " + str(k) + ": ")
    SSE = calculateSumSquaredError(data, centroids, assignedCluster, 2)
-   print (SSE)
+   # print (SSE)
    return SSE
    
 
@@ -65,13 +65,14 @@ def initialize_cluster(data, centroids, k):
     return centroids
     
 # assigns data points to the nearest centroid
-def assign_Centroid(data, centroids, assignedCluster):
+def assign_Centroid(data, centroids, assignedCluster, k):
     distance = []
     j=0
     while (j<lines):
         i=0
-        currentData= data[j]      
+        currentData= data[j]     
         while (i<k):
+
             currentCentroid = centroids[i]
             #calculate euclidean distance from one datapoint to all centroids
             distance.append(calculate_LDistance(currentData, currentCentroid, 2))
@@ -85,7 +86,7 @@ def assign_Centroid(data, centroids, assignedCluster):
 def calculate_LDistance (currentData, currentCentroid, lNorm):
     return pow(sum([pow(abs(currentData - currentCentroid),lNorm) for currentData, currentCentroid in zip(currentData, currentCentroid)]),(1/lNorm))
     
-def recalculate_Centroids (newCentroids, data, assignedCluster):
+def recalculate_Centroids (newCentroids, data, assignedCluster, k):
     # calculate new Centroids, by using the mean of all data points
     for num in range(0,k):
         #list of indices for datapoints assigned to chosen cluster
@@ -111,45 +112,26 @@ def calculateSumSquaredError (data, centroids, assignedCentroids, lNorm):
         counter =counter+1
     return sumSquareDistance
     
+def createElbowGraph (maxClusters, data, centroids, assignedCluster, newCentroids):
+    SSE = []
+    for k in range (1, maxClusters+1):
+        #calling the function
+        SSE.append(kmeans(data, k, centroids, assignedCluster, newCentroids))
 
-def plotClusters(centroids, points):
-    import matplotlib.pyplot as plot
+    plt.plot([numberCluster for numberCluster in range (1, maxClusters+1)], SSE); 
+    plt.xlabel('#Clusters')
+    plt.ylabel('SSE')
+    plt.title('Elbow Graph')
+    plt.show();
+
+    return
     
-    colors = ["b", "g", "r"]
-    markers = ["o", "o", "o"]
-#    markers = ["^", "s", ""]
-
-    fig, ax = plot.subplots()
-    
-    index = 0
-    for centroid in centroids:
-        ax.scatter(centroid[0], centroid[1], color=colors[index], s=500, marker="x")
-        ax.annotate("C" + str(index + 1), (centroid[0] + 2, centroid[1] + 2))
-        index = (index + 1) % len(colors)
-        
-    index = 0
-    for point in points:
-        ax.scatter(point[0], point[1], color=colors[point[2] - 1], s=100, marker=markers[index])
-        ax.annotate(str(point[2]), (point[0] + 1, point[1] + 1))
-        index = (index + 1) % len(colors)
-
-    fig.canvas.draw()
-    fig.show()
-
-    
+createElbowGraph(maxClusters, data, centroids, assignedCluster, newCentroids)
+#startpoint to measure the runtime
+startTime = time.time()
 #calling the function
-SSE = []
-for k in range (1, maxClusters+1):
-    #startpoint to measure the runtime
-    startTime = time.time()
-    SSE.append(kmeans(data, k, centroids, assignedCluster, newCentroids))
-    #finish to measure the runtime
-    elapsedTime = time.time() - startTime
-    print('The runtime is: ' + str(elapsedTime))
-
-plt.plot([k for k in range (1, maxClusters+1)], SSE); 
-plt.xlabel('#Clusters')
-plt.ylabel('SSE')
-plt.title('Elbow Graph')   
-plt.show();
-#plotClusters([k for k in range (1, maxClusters+1)], SSE)
+k=3
+kmeans(data, k, centroids, assignedCluster, newCentroids)
+#finish to measure the runtime
+elapsedTime = time.time() - startTime
+print('The runtime is: ' + str(elapsedTime))

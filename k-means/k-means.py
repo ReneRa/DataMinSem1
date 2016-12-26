@@ -10,8 +10,6 @@ Created on Wed Dec 21 21:33:36 2016
 import pandas
 import random as ran
 
-from math import *
-
 filename = "Supermarket.xlsx"
 # parse_cols = "W:AL" for monetary data (cols W-AL in supermarket dataset)
 dataSel = pandas.read_excel(filename, parse_cols = "W:AL")
@@ -25,7 +23,7 @@ centroids = []
 assignedCluster = []
 newCentroids = []
 
-maxClusters = 15
+maxClusters = 5
 maxIterations = 300
 
 
@@ -50,8 +48,9 @@ def kmeans(data, k, centroids, assignedCluster, newCentroids):
         #print(centroids)
         #print (assignedCluster)
    print ("\nSSE for k = " + str(k) + ": ")
-   print (calculateSumSquaredError(data, centroids, assignedCluster, 2))
-   return
+   SSE = calculateSumSquaredError(data, centroids, assignedCluster, 2)
+   print (SSE)
+   return SSE
    
 
 #TODO: make sure the same point is not picked twice?
@@ -108,8 +107,36 @@ def calculateSumSquaredError (data, centroids, assignedCentroids, lNorm):
         sumSquareDistance = sumSquareDistance + pow(calculate_LDistance(currentData, currentCentroid, lNorm),2)
         counter =counter+1
     return sumSquareDistance
+    
+
+def plotClusters(centroids, points):
+    import matplotlib.pyplot as plot
+    
+    colors = ["b", "g", "r"]
+    markers = ["o", "o", "o"]
+#    markers = ["^", "s", ""]
+
+    fig, ax = plot.subplots()
+    
+    index = 0
+    for centroid in centroids:
+        ax.scatter(centroid[0], centroid[1], color=colors[index], s=500, marker="x")
+        ax.annotate("C" + str(index + 1), (centroid[0] + 2, centroid[1] + 2))
+        index = (index + 1) % len(colors)
+        
+    index = 0
+    for point in points:
+        ax.scatter(point[0], point[1], color=colors[point[2] - 1], s=100, marker=markers[index])
+        ax.annotate(str(point[2]), (point[0] + 1, point[1] + 1))
+        index = (index + 1) % len(colors)
+
+    fig.canvas.draw()
+    fig.show()
 
     
 #calling the function
+SSE = []
 for k in range (1, maxClusters+1):
-    kmeans(data, k, centroids, assignedCluster, newCentroids)
+    SSE.append(kmeans(data, k, centroids, assignedCluster, newCentroids))
+    
+plotClusters([k for k in range (1, maxClusters+1)], SSE)

@@ -11,9 +11,14 @@ import pandas
 import random as ran
 import math
 import time
+import matplotlib.pyplot as plt
+
+
 
 filename = "Supermarket_cleaned.xlsx"
+# parse_cols = "W:AL" for monetary data (cols Q-AC in supermarket dataset)
 dataSel = pandas.read_excel(filename, parse_cols = "Q:AC")
+
 data = dataSel.values.tolist()
 lines = len(data)
 columns = len(data[0])
@@ -24,11 +29,8 @@ centroids = []
 assignedCluster = []
 newCentroids = []
 
-k=7
+maxClusters = 10
 maxIterations = 300
-
-#startpoint to measure the runtime
-startTime = time.time()
 
 #main function, kmeans
 def kmeans(data, k, centroids, assignedCluster, newCentroids):
@@ -39,18 +41,24 @@ def kmeans(data, k, centroids, assignedCluster, newCentroids):
    for num in range(i, maxIterations):
         assignedCluster =[]  #delete values in list
         newCentroids =[]     #delete values in list
-        assignedCluster = assign_Centroid(data, centroids, assignedCluster)
-        newCentroids = recalculate_Centroids(newCentroids, data, assignedCluster)
+        #TODO: assignedCluster not really necessary as param
+        assignedCluster = assign_Centroid(data, centroids, assignedCluster, k)
+        newCentroids = recalculate_Centroids(newCentroids, data, assignedCluster, k)
         # recognizing natural finish point
         if centroids == newCentroids: 
             break
-            return
         centroids = newCentroids
-        print(centroids)
-   return
+        if (i==max):
+            assignedCluster = assign_Centroid(data, centroids, assignedCluster)
+        #print(centroids)
+        #print (assignedCluster)
+   # print ("\nSSE for k = " + str(k) + ": ")
+   SSE = calculateSumSquaredError(data, centroids, assignedCluster, 2)
+   # print (SSE)
+   return SSE
    
 
-
+#TODO: make sure the same point is not picked twice?
 # initializes k centroids
 # picks random data points as initial centroids
 def initialize_cluster(data, centroids, k):
@@ -59,16 +67,17 @@ def initialize_cluster(data, centroids, k):
     return centroids
     
 # assigns data points to the nearest centroid
-def assign_Centroid(data, centroids, assignedCluster):
+def assign_Centroid(data, centroids, assignedCluster, k):
     distance = []
     j=0
     while (j<lines):
         i=0
-        currentData= data[j]      
+        currentData= data[j]     
         while (i<k):
-            currentCentroids = centroids[i]
+
+            currentCentroid = centroids[i]
             #calculate euclidean distance from one datapoint to all centroids
-            distance.append(math.sqrt(sum([(currentData - currentCentroids)**2 for currentData, currentCentroids in zip(currentData, currentCentroids)])))
+            distance.append(calculate_LDistance(currentData, currentCentroid, 2))
             i = i+1
         #choose the index of the smallest difference
         assignedCluster.append(distance.index(min(distance)))
@@ -76,13 +85,14 @@ def assign_Centroid(data, centroids, assignedCluster):
         j =j+1
     return assignedCluster
     
+def calculate_LDistance (currentData, currentCentroid, lNorm):
+    return pow(sum([pow(abs(currentData - currentCentroid),lNorm) for currentData, currentCentroid in zip(currentData, currentCentroid)]),(1/lNorm))
     
-def recalculate_Centroids (newCentroids, data, assignedCluster,):
+def recalculate_Centroids (newCentroids, data, assignedCluster, k):
     # calculate new Centroids, by using the mean of all data points
-    c=0 
-    for num in range(c,k):
+    for num in range(0,k):
         #list of indices for datapoints assigned to chosen cluster
-        index = [ h for h, l in enumerate(assignedCluster) if l == c]
+        index = [ idx for idx, val in enumerate(assignedCluster) if val == num]
         #list of datapoints, identified by using indices
         temparray = [data[i] for i in index] 
         #creating the sum of each dimension of the selected DataPoints
@@ -91,10 +101,38 @@ def recalculate_Centroids (newCentroids, data, assignedCluster,):
         listLength = sum(1 for x in temparray if isinstance(x,list)) 
         #create mean for each dimension 
         newCentroids.append([x / listLength if sum else 0  for x in sumarray])
-        c=c+1
     return newCentroids
+    
+def calculateSumSquaredError (data, centroids, assignedCentroids, lNorm):
+    sumSquareDistance = 0
+    counter = 0
+    while (counter<lines):
+        currentData= data[counter]      
+        currentCentroid = centroids[assignedCentroids[counter]]
+        #calculate distance from one datapoint to assigned cluster centroid
+        sumSquareDistance = sumSquareDistance + pow(calculate_LDistance(currentData, currentCentroid, lNorm),2)
+        counter =counter+1
+    return sumSquareDistance
+    
+def createElbowGraph (maxClusters, data, centroids, assignedCluster, newCentroids):
+    SSE = []
+    for k in range (1, maxClusters+1):
+        #calling the function
+        SSE.append(kmeans(data, k, centroids, assignedCluster, newCentroids))
 
+    plt.plot([numberCluster for numberCluster in range (1, maxClusters+1)], SSE); 
+    plt.xlabel('#Clusters')
+    plt.ylabel('SSE')
+    plt.title('Elbow Graph')
+    plt.show();
+
+    return
+    
+createElbowGraph(maxClusters, data, centroids, assignedCluster, newCentroids)
+#startpoint to measure the runtime
+startTime = time.time()
 #calling the function
+k=3
 kmeans(data, k, centroids, assignedCluster, newCentroids)
 #finish to measure the runtime
 elapsedTime = time.time() - startTime

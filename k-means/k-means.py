@@ -3,7 +3,7 @@
 """
 Created on Wed Dec 21 21:33:36 2016
 
-@author: Rene
+@author: Rene, Jonathan, Marnik
 """
 
 #import the file

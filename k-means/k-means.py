@@ -9,9 +9,11 @@ Created on Wed Dec 21 21:33:36 2016
 #import the file
 import pandas
 import random as ran
-import math
+
+from math import *
 
 filename = "Supermarket.xlsx"
+# parse_cols = "W:AL" for monetary data (cols W-AL in supermarket dataset)
 dataSel = pandas.read_excel(filename, parse_cols = "W:AL")
 data = dataSel.values.tolist()
 lines = len(data)
@@ -41,13 +43,20 @@ def kmeans(data, k, centroids, assignedCluster, newCentroids):
         # recognizing natural finish point
         if centroids == newCentroids: 
             break
-            return
         centroids = newCentroids
         print(centroids)
+        #print (assignedCluster)
+        print ("\nAvg. Error: ")
+        print (calculateAverageError(data, centroids, assignedCluster, 1))
+   print ("\nAvg. Error: ")
+   print (calculateAverageError(data, centroids, assignedCluster, 1))
+   print (calculateAverageError(data, centroids, assignedCluster, 2))
+   print (calculateAverageError(data, centroids, assignedCluster, 3))
+   print (calculateAverageError(data, centroids, assignedCluster, 4))
    return
    
 
-
+#TODO: make sure the same point is not picked twice?
 # initializes k centroids
 # picks random data points as initial centroids
 def initialize_cluster(data, centroids, k):
@@ -63,9 +72,9 @@ def assign_Centroid(data, centroids, assignedCluster):
         i=0
         currentData= data[j]      
         while (i<k):
-            currentCentroids = centroids[i]
+            currentCentroid = centroids[i]
             #calculate euclidean distance from one datapoint to all centroids
-            distance.append(math.sqrt(sum([(currentData - currentCentroids)**2 for currentData, currentCentroids in zip(currentData, currentCentroids)])))
+            distance.append(calculate_LDistance(currentData, currentCentroid, 2))
             i = i+1
         #choose the index of the smallest difference
         assignedCluster.append(distance.index(min(distance)))
@@ -73,8 +82,10 @@ def assign_Centroid(data, centroids, assignedCluster):
         j =j+1
     return assignedCluster
     
+def calculate_LDistance (currentData, currentCentroid, lNorm):
+    return pow(sum([pow(abs(currentData - currentCentroid),lNorm) for currentData, currentCentroid in zip(currentData, currentCentroid)]),(1/lNorm))
     
-def recalculate_Centroids (newCentroids, data, assignedCluster,):
+def recalculate_Centroids (newCentroids, data, assignedCluster):
     # calculate new Centroids, by using the mean of all data points
     c=0 
     for num in range(c,k):
@@ -90,6 +101,17 @@ def recalculate_Centroids (newCentroids, data, assignedCluster,):
         newCentroids.append([x / listLength if sum else 0  for x in sumarray])
         c=c+1
     return newCentroids
+    
+def calculateAverageError (data, centroids, assignedCentroids, lNorm):
+    sumDistance = 0;
+    counter = 0;
+    while (counter<lines):
+        currentData= data[counter]      
+        currentCentroid = centroids[assignedCentroids[counter]]
+        #calculate distance from one datapoint to assigned cluster centroid
+        sumDistance = sumDistance + calculate_LDistance(currentData, currentCentroid, lNorm)
+        counter =counter+1
+    return sumDistance/counter
 
 #calling the function
 kmeans(data, k, centroids, assignedCluster, newCentroids)

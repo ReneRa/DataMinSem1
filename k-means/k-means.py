@@ -25,7 +25,6 @@ centroids = []
 assignedCluster = []
 newCentroids = []
 
-k=7
 maxIterations = 300
 
 
@@ -38,21 +37,19 @@ def kmeans(data, k, centroids, assignedCluster, newCentroids):
    for num in range(i, maxIterations):
         assignedCluster =[]  #delete values in list
         newCentroids =[]     #delete values in list
+        #TODO: assignedCluster not really necessary as param
         assignedCluster = assign_Centroid(data, centroids, assignedCluster)
         newCentroids = recalculate_Centroids(newCentroids, data, assignedCluster)
         # recognizing natural finish point
         if centroids == newCentroids: 
             break
         centroids = newCentroids
-        print(centroids)
+        if (i==max):
+            assignedCluster = assign_Centroid(data, centroids, assignedCluster)
+        #print(centroids)
         #print (assignedCluster)
-        print ("\nAvg. Error: ")
-        print (calculateAverageError(data, centroids, assignedCluster, 1))
-   print ("\nAvg. Error: ")
-   print (calculateAverageError(data, centroids, assignedCluster, 1))
-   print (calculateAverageError(data, centroids, assignedCluster, 2))
-   print (calculateAverageError(data, centroids, assignedCluster, 3))
-   print (calculateAverageError(data, centroids, assignedCluster, 4))
+   print ("\nSSE for k = " + str(k) + ": ")
+   print (calculateSumSquaredError(data, centroids, assignedCluster, 2))
    return
    
 
@@ -87,10 +84,9 @@ def calculate_LDistance (currentData, currentCentroid, lNorm):
     
 def recalculate_Centroids (newCentroids, data, assignedCluster):
     # calculate new Centroids, by using the mean of all data points
-    c=0 
-    for num in range(c,k):
+    for num in range(0,k):
         #list of indices for datapoints assigned to chosen cluster
-        index = [ h for h, l in enumerate(assignedCluster) if l == c]
+        index = [ idx for idx, val in enumerate(assignedCluster) if val == num]
         #list of datapoints, identified by using indices
         temparray = [data[i] for i in index] 
         #creating the sum of each dimension of the selected DataPoints
@@ -99,19 +95,19 @@ def recalculate_Centroids (newCentroids, data, assignedCluster):
         listLength = sum(1 for x in temparray if isinstance(x,list)) 
         #create mean for each dimension 
         newCentroids.append([x / listLength if sum else 0  for x in sumarray])
-        c=c+1
     return newCentroids
     
-def calculateAverageError (data, centroids, assignedCentroids, lNorm):
-    sumDistance = 0;
-    counter = 0;
+def calculateSumSquaredError (data, centroids, assignedCentroids, lNorm):
+    sumSquareDistance = 0
+    counter = 0
     while (counter<lines):
         currentData= data[counter]      
         currentCentroid = centroids[assignedCentroids[counter]]
         #calculate distance from one datapoint to assigned cluster centroid
-        sumDistance = sumDistance + calculate_LDistance(currentData, currentCentroid, lNorm)
+        sumSquareDistance = sumSquareDistance + pow(calculate_LDistance(currentData, currentCentroid, lNorm),2)
         counter =counter+1
-    return sumDistance/counter
+    return sumSquareDistance
 
+    
 #calling the function
-kmeans(data, k, centroids, assignedCluster, newCentroids)
+    kmeans(data, k, centroids, assignedCluster, newCentroids)

@@ -10,6 +10,7 @@ Created on Wed Dec 21 21:33:36 2016
 import pandas
 import random as ran
 import math
+import time
 
 filename = "Supermarket.xlsx"
 dataSel = pandas.read_excel(filename, parse_cols = "W:AL")
@@ -26,6 +27,8 @@ newCentroids = []
 k=7
 maxIterations = 300
 
+#startpoint to measure the runtime
+startTime = time.time()
 
 #main function, kmeans
 def kmeans(data, k, centroids, assignedCluster, newCentroids):
@@ -93,3 +96,6 @@ def recalculate_Centroids (newCentroids, data, assignedCluster,):
 
 #calling the function
 kmeans(data, k, centroids, assignedCluster, newCentroids)
+#finish to measure the runtime
+elapsedTime = time.time() - startTime
+print('The runtime is: ' + str(elapsedTime))

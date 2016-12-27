@@ -14,8 +14,6 @@ import time
 import matplotlib.pyplot as plt
 import numpy as np
 
-
-
 filename = "Supermarket_cleaned.xlsx"
 # parse_cols = "W:AL" for monetary data (cols Q-AC in supermarket dataset)
 dataSel = pandas.read_excel(filename, parse_cols = "Q:AC")
@@ -25,7 +23,6 @@ lines = len(data)
 columns = len(data[0])
 
 #specify k and the maximal number of iterations
-
 centroids = []
 assignedCluster = []
 newCentroids = []
@@ -51,8 +48,8 @@ def kmeans(data, k, centroids, assignedCluster, newCentroids):
         centroids = newCentroids
         if (i==max):
             assignedCluster = assign_Centroid(data, centroids, assignedCluster)
-        #print(centroids)
-        #print (assignedCluster)
+        # print(centroids)
+        # print (assignedCluster)
    # print ("\nSSE for k = " + str(k) + ": ")
    # SSE = calculateSumSquaredError(data, centroids, assignedCluster, 2)
    # print (SSE)
@@ -79,6 +76,7 @@ def assign_Centroid(data, centroids, assignedCluster, k):
             currentCentroid = centroids[i]
             #calculate euclidean distance from one datapoint to all centroids
             distance.append(calculate_LDistance(currentData, currentCentroid, 2))
+            #distance.append(calculate_ChebyshevDistance(currentData, currentCentroid))
             i = i+1
         #choose the index of the smallest difference
         assignedCluster.append(distance.index(min(distance)))
@@ -88,6 +86,9 @@ def assign_Centroid(data, centroids, assignedCluster, k):
     
 def calculate_LDistance (currentData, currentCentroid, lNorm):
     return pow(sum([pow(abs(currentData - currentCentroid),lNorm) for currentData, currentCentroid in zip(currentData, currentCentroid)]),(1/lNorm))
+
+def calculate_ChebyshevDistance (currentData, currentCentroid):
+    return max([abs(currentData - currentCentroid) for currentData, currentCentroid in zip(currentData, currentCentroid)]) 
     
 def recalculate_Centroids (newCentroids, data, assignedCluster, k):
     # calculate new Centroids, by using the mean of all data points
@@ -112,6 +113,7 @@ def calculateSumSquaredError (data, centroids, assignedCluster, lNorm):
         currentCentroid = centroids[assignedCluster[counter]]
         #calculate distance from one datapoint to assigned cluster centroid
         sumSquareDistance = sumSquareDistance + pow(calculate_LDistance(currentData, currentCentroid, lNorm),2)
+        #sumSquareDistance = sumSquareDistance + pow(calculate_ChebyshevDistance(currentData, currentCentroid), 2)
         counter =counter+1
     return sumSquareDistance
     
@@ -197,13 +199,40 @@ def compute_BIC(data, centroids, assignedCluster, k):
     BIC = np.sum([n[i] * np.log(n[i]) -
                n[i] * np.log(N) -
              ((n[i] * d) / 2) * np.log(2*np.pi*cl_var) -
-             ((n[i] - 1) * d/ 2) for i in range(k)]) - const_term*k*d
+             ((n[i] - 1) * d/ 2) for i in range(k)]) - const_term*k*(d+1)
     
     #BIC2 = N + N * np.log(2*np.pi) + N * np.log (SSE/N) + np.log(N) * (d+1)
 
     return BIC
     
+def getClusterStatistics (assignedClusters, k):
+    stat = [0] * k
+    for i in range (0, len(assignedClusters)):
+        stat[assignedClusters[i]] = stat[assignedClusters[i]] +1
+    return stat
 
+def normalizeData(data):
+    lines = len(data)
+    columns = len(data[0])
+    
+    newdata = []
+    
+    for i in range(0, columns):
+        avg = calculate_Average(data, i)
+        stddev = calculate_StandardDeviation(data, i)
+        columndata = []
+        for j in range (0, lines):
+            columndata.append(pow(abs(data[j][i]-avg),2)/stddev)
+        newdata.append(columndata)
+
+def calculate_Average(data, column):
+    lines = len(data)
+    
+
+def calculate_StandardDeviation(data, i):
+    
+    
+    
 createElbowGraph(maxClusters, data)
 createBICGraph(maxClusters, data)
 
@@ -212,8 +241,12 @@ startTime = time.time()
 #calculating k
 k = getMaximalBIC(maxClusters, data)[0]
 #calling the function
-print ("centroids for k-means with " + str(k) + ":")
-print (kmeans(data, k, centroids, assignedCluster, newCentroids)[0])
+kMeans = kmeans(data, k, centroids, assignedCluster, newCentroids)
+print ("centroids for k-means with k=" + str(k) + ":")
+print (kMeans[0])
+stats = getClusterStatistics(kMeans[1], k)
+print ("Cluster Sizes:")
+print (stats)
 #finish to measure the runtime
 elapsedTime = time.time() - startTime
 print('The total runtime for clustering with ' + str(k) + ' clusters is: ' + str(elapsedTime))

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 TODO: act like this was created earlier?
-Created on Wed Dec 21 21:33:36 2016
+Created on Sat Dec 3 21:33:36 2016
 
 @author: Rene, Jonathan, Marnik
 """
@@ -13,22 +13,28 @@ import random as ran
 import time
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.decomposition.pca import PCA
+from scatter_plot import plotClusters
 
-filename = "Supermarket_cleaned.xlsx"
-# parse_cols = "W:AL" for monetary data (cols Q-AC in supermarket dataset)
-dataSel = pandas.read_excel(filename, parse_cols = "Q:AC")
+#specify k, the maximal number of iterations and the final number of dimensions
 
-data = dataSel.values.tolist()
-lines = len(data)
-columns = len(data[0])
-
-#specify k and the maximal number of iterations
 centroids = []
 assignedCluster = []
 newCentroids = []
-
-maxClusters = 6
+dataPointsIndex = []
+finalNumberOfDimensions = 2
+maxClusters = 4
 maxIterations = 300
+
+#TODO: Clean the dataset @Rene
+filename = "GadgetManiacs_Cluster.xlsx"
+# parse_cols = "W:AL" for monetary data (cols Q-AC in supermarket dataset)
+dataSel = pandas.read_excel(filename, parse_cols = "J:O")
+originalData = dataSel.values.tolist()
+data = PCA(finalNumberOfDimensions).fit_transform(originalData).tolist()
+
+lines = len(data)
+columns = len(data[0])
 
 #main function, kmeans
 def kmeans(data, k, centroids, assignedCluster, newCentroids):
@@ -37,6 +43,7 @@ def kmeans(data, k, centroids, assignedCluster, newCentroids):
    i=0
    # adjust centroids by iteration, stop when finished or max iterations
    for num in range(i, maxIterations):
+        dataPointsIndex[:] = assignedCluster
         assignedCluster =[]  #delete values in list
         newCentroids =[]     #delete values in list
         #TODO: assignedCluster not really necessary as param
@@ -45,6 +52,7 @@ def kmeans(data, k, centroids, assignedCluster, newCentroids):
         # recognizing natural finish point
         if centroids == newCentroids: 
             break
+            return
         centroids = newCentroids
         if (i==max):
             assignedCluster = assign_Centroid(data, centroids, assignedCluster)
@@ -53,7 +61,7 @@ def kmeans(data, k, centroids, assignedCluster, newCentroids):
    # print ("\nSSE for k = " + str(k) + ": ")
    # SSE = calculateSumSquaredError(data, centroids, assignedCluster, 2)
    # print (SSE)
-   return centroids, assignedCluster
+   return centroids, assignedCluster, dataPointsIndex, newCentroids
    
 
 #TODO: make sure the same point is not picked twice? - could be an improvement as well...
@@ -211,35 +219,56 @@ def getClusterStatistics (assignedClusters, k):
         stat[assignedClusters[i]] = stat[assignedClusters[i]] +1
     return stat
 
+    
+    ''' 
 def normalizeData(data):
     lines = len(data)
     columns = len(data[0])
     
     newdata = []
     
-    for i in range(0, columns):
+   for i in range(0, columns):
         avg = calculate_Average(data, i)
         stddev = calculate_StandardDeviation(data, i)
         columndata = []
         for j in range (0, lines):
             columndata.append(pow(abs(data[j][i]-avg),2)/stddev)
         newdata.append(columndata)
+    '''
 
-def calculate_Average(data, column):
-    lines = len(data)
     
+#Create a more dynamic plotting approach @Rene
+def plotting(dataPointsIndex, centroids):
+    kmeans(data, k, centroids, assignedCluster, newCentroids)
+    #Adding the index to each datapoint
+    counter = 0
+    for dataPoint in dataPointsIndex:
+        data[counter].append(int(dataPoint))
+        counter += 1
+    #necessary to change centroid value to int
+    KMeans = kmeans(data, k, centroids, assignedCluster, newCentroids)[0]
+    counter = 0    
+    for centroid in KMeans:
+        KMeans[counter][2] = int(KMeans[counter][2])
+        counter += 1             
+    #plotting the data in external class scatter_plot
+    plotClusters(KMeans, data)
 
-def calculate_StandardDeviation(data, i):
+#def calculate_StandardDeviation(data, i):
     
-    
+#def calculate_Average(data, column):
+#    lines = len(data)    
     
 createElbowGraph(maxClusters, data)
 createBICGraph(maxClusters, data)
+
 
 #startpoint to measure the runtime
 startTime = time.time()
 #calculating k
 k = getMaximalBIC(maxClusters, data)[0]
+#Plot the Clustering result
+plotting(dataPointsIndex, centroids)
 #calling the function
 kMeans = kmeans(data, k, centroids, assignedCluster, newCentroids)
 print ("centroids for k-means with k=" + str(k) + ":")

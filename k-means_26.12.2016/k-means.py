@@ -28,13 +28,18 @@ centroids = []
 assignedCluster = []
 newCentroids = []
 
+test = []
+
 maxClusters = 10
 maxIterations = 300
 
 #main function, kmeans
 def kmeans(data, k, centroids, assignedCluster, newCentroids):
+   centroids = []
     #initialize random centroids
-   centroids = initialize_cluster(data, centroids, k) 
+   centroids = initialize_cluster(data,centroids, k) 
+   #print(test)
+   
    i=0
    # adjust centroids by iteration, stop when finished or max iterations
    for num in range(i, maxIterations):
@@ -53,8 +58,9 @@ def kmeans(data, k, centroids, assignedCluster, newCentroids):
         #print (assignedCluster)
    # print ("\nSSE for k = " + str(k) + ": ")
    SSE = calculateSumSquaredError(data, centroids, assignedCluster, 2)
-   # print (SSE)
+   print (SSE)
    return SSE
+   
    
 
 #TODO: make sure the same point is not picked twice? - could be an improvement as well...
@@ -65,6 +71,47 @@ def initialize_cluster(data, centroids, k):
         centroids.append(ran.choice(data))
     return centroids
     
+# Use the k means plus plus method to initialize the centroids
+def initialize_plus(data, k):
+    centroids.append(ran.choice(data))
+    
+    for cluster in range(1, k):
+        # Calculate distance to nearest centroid for each data point  
+        minDistances = [] # Holds the distances to the nearest centroid for each data point
+        totalDistance = 0        
+
+        for datapoint in data:
+            # Store distances to all clusters and pick nearest from this
+            distances = [] 
+
+            for centroid in centroids:
+                distance = 0
+                for i in range(0, len(datapoint)):
+                    distance += abs(datapoint[i] - centroid[i])
+                distances.append(pow(distance, 2))
+                
+            # Pick the nearest cluster for the current data point
+            minDistances.append([data.index(datapoint), min(distances)])
+            totalDistance += min(distances)
+        
+        # Fill a cummulative list, 0 to 1, with appropiate probabilities, which is used to pick the new centroid by weighted probability
+        cumProbabilities = []
+        previousProb = 0
+        for minDistance in minDistances:
+            probability = (minDistance[1]/totalDistance) * 100
+            if minDistance == minDistances[0]:
+                cumProbabilities.append([minDistance[0], probability])
+            else:
+                cumProbabilities.append([minDistance[0], previousProb + probability])
+            previousProb += probability
+
+        r = ran.uniform(0.0, 100.0)
+        for cumProbability in cumProbabilities:
+            if r < cumProbability[1]:
+                centroids.append(data[cumProbability[0]])
+                break
+
+    return centroids
 # assigns data points to the nearest centroid
 def assign_Centroid(data, centroids, assignedCluster, k):
     distance = []
@@ -117,8 +164,8 @@ def createElbowGraph (maxClusters, data):
     SSE = []
     for k in range (1, maxClusters+1):
         #calling the function
-        #SSE.append(kmeans(data, k, centroids, assignedCluster, newCentroids))
-        SSE.append()
+        SSE.append(kmeans(data, k, centroids, assignedCluster, newCentroids))
+        #SSE.append()
 
     plt.plot([numberCluster for numberCluster in range (1, maxClusters+1)], SSE); 
     plt.xlabel('#Clusters')
@@ -170,7 +217,6 @@ def compute_bic(data, centroids, assignedCluster, k):
              ((n[i] - 1) * d/ 2) for i in range(m)]) - const_term
 
     return(BIC)
-    
     
     
 createElbowGraph(maxClusters, data)

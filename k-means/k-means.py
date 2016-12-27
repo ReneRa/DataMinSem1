@@ -13,25 +13,28 @@ import random as ran
 import time
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.decomposition.pca import PCA
+from scatter_plot import plotClusters
 
+#specify k, the maximal number of iterations and the final number of dimensions
 
+centroids = []
+assignedCluster = []
+newCentroids = []
+dataPointsIndex = []
+finalNumberOfDimensions = 2
+maxClusters = 4
+maxIterations = 300
 
 filename = "Supermarket_cleaned.xlsx"
 # parse_cols = "W:AL" for monetary data (cols Q-AC in supermarket dataset)
 dataSel = pandas.read_excel(filename, parse_cols = "Q:AC")
 
-data = dataSel.values.tolist()
 lines = len(data)
 columns = len(data[0])
 
-#specify k and the maximal number of iterations
 
-centroids = []
-assignedCluster = []
-newCentroids = []
 
-maxClusters = 6
-maxIterations = 300
 
 #main function, kmeans
 def kmeans(data, k, centroids, assignedCluster, newCentroids):
@@ -40,6 +43,7 @@ def kmeans(data, k, centroids, assignedCluster, newCentroids):
    i=0
    # adjust centroids by iteration, stop when finished or max iterations
    for num in range(i, maxIterations):
+        dataPointsIndex[:] = assignedCluster
         assignedCluster =[]  #delete values in list
         newCentroids =[]     #delete values in list
         #TODO: assignedCluster not really necessary as param
@@ -48,6 +52,7 @@ def kmeans(data, k, centroids, assignedCluster, newCentroids):
         # recognizing natural finish point
         if centroids == newCentroids: 
             break
+            return
         centroids = newCentroids
         if (i==max):
             assignedCluster = assign_Centroid(data, centroids, assignedCluster)
@@ -56,7 +61,7 @@ def kmeans(data, k, centroids, assignedCluster, newCentroids):
    # print ("\nSSE for k = " + str(k) + ": ")
    # SSE = calculateSumSquaredError(data, centroids, assignedCluster, 2)
    # print (SSE)
-   return centroids, assignedCluster
+   return centroids, assignedCluster, dataPointsIndex, newCentroids
    
 
 #TODO: make sure the same point is not picked twice? - could be an improvement as well...
@@ -202,15 +207,34 @@ def compute_BIC(data, centroids, assignedCluster, k):
     #BIC2 = N + N * np.log(2*np.pi) + N * np.log (SSE/N) + np.log(N) * (d+1)
 
     return BIC
-    
+    #Adding the index to each data point and plotting the result
+def plotting(dataPointsIndex, centroids):
+    kmeans(data, k, centroids, assignedCluster, newCentroids)
+    counter = 0
+    for dataPoint in dataPointsIndex:
+        data[counter].append(int(dataPoint))
+        counter += 1
+    #necessary to change centroid value to int
+    KMeans = kmeans(data, k, centroids, assignedCluster, newCentroids)[0]
+    counter = 0    
+    for centroid in KMeans:
+        KMeans[counter][2] = int(KMeans[counter][2])
+        counter += 1          
+    #print(kmeans(data, k, centroids, assignedCluster, newCentroids)[0])    
+    plotClusters(KMeans, data)
+
 
 createElbowGraph(maxClusters, data)
 createBICGraph(maxClusters, data)
+
+
 
 #startpoint to measure the runtime
 startTime = time.time()
 #calculating k
 k = getMaximalBIC(maxClusters, data)[0]
+#Plot the Clustering result
+plotting(dataPointsIndex, centroids)
 #calling the function
 print ("centroids for k-means with " + str(k) + ":")
 print (kmeans(data, k, centroids, assignedCluster, newCentroids)[0])

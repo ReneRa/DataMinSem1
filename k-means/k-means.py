@@ -30,7 +30,7 @@ centroids = []
 assignedCluster = []
 newCentroids = []
 
-maxClusters = 30
+maxClusters = 10
 maxIterations = 300
 
 #main function, kmeans
@@ -185,8 +185,15 @@ def compute_BIC(data, centroids, assignedCluster, k):
     N = len(data)
     d = len(data[0])
 
+    SSE = calculateSumSquaredError (data, centroids, assignedCluster, 2)
+    print ("SSE: " + str(SSE))
+    print ("data entries: " + str(N))
+    print ("variable entries: " + str(d))
+    print ("cluster sizes: " + str(n))
+    print ("K: " + str(k))
+    
     #compute variance for all clusters beforehand
-    cl_var = (1.0 / (N - m) / d) * calculateSumSquaredError (data, centroids, assignedCluster, 2)
+    cl_var = (1.0 / (N - m) / d) * SSE
 
     const_term = 0.5 * m * np.log(N) * (d+1)
 
@@ -195,8 +202,47 @@ def compute_BIC(data, centroids, assignedCluster, k):
              ((n[i] * d) / 2) * np.log(2*np.pi*cl_var) -
              ((n[i] - 1) * d/ 2) for i in range(m)]) - const_term
 
-    return(BIC)
+
+    return BIC
     
+    @classmethod
+    def bic(cls, clusters, centroids):
+        num_points = sum(len(cluster) for cluster in clusters)
+        num_dims = clusters[0][0].shape[0]
+
+        log_likelihood = _loglikelihood(num_points, num_dims, clusters, centroids)
+        num_params = _free_params(len(clusters), num_dims)
+
+        return log_likelihood - num_params / 2.0 * np.log(num_points)
+        
+    @classmethod
+    def _free_params(cls, num_clusters, num_dims):
+        return num_clusters * (num_dims + 1)
+
+
+    @classmethod
+    def _loglikelihood(cls, num_points, num_dims, clusters, centroids):
+        ll = 0
+        for cluster in clusters:
+            fRn = len(cluster)
+            t1 = fRn * np.log(fRn)
+            t2 = fRn * np.log(num_points)
+            variance = _cluster_variance(num_points, clusters, centroids) or np.nextafter(0, 1)
+            t3 = ((fRn * num_dims) / 2.0) * np.log((2.0 * np.pi) * variance)
+            t4 = (fRn - 1.0) / 2.0
+            ll += t1 - t2 - t3 - t4
+        return ll
+
+
+    @classmethod
+    def _cluster_variance(cls, num_points, clusters, centroids):
+        s = 0
+        denom = float(num_points - len(centroids))
+        for cluster, centroid in zip(clusters, centroids):
+            distances = calculate_LDistance(cluster, centroid, 2)
+            s += (distances*distances).sum()
+        return s / denom
+
     
     
 #createElbowGraph(maxClusters, data)

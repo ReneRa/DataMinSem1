@@ -26,9 +26,11 @@ finalNumberOfDimensions = 2
 maxClusters = 4
 maxIterations = 300
 
-filename = "Supermarket_cleaned.xlsx"
+filename = "GadgetManiacs_Cluster.xlsx"
 # parse_cols = "W:AL" for monetary data (cols Q-AC in supermarket dataset)
-dataSel = pandas.read_excel(filename, parse_cols = "Q:AC")
+dataSel = pandas.read_excel(filename, parse_cols = "J:O")
+originalData = dataSel.values.tolist()
+data = PCA(finalNumberOfDimensions).fit_transform(originalData).tolist()
 
 lines = len(data)
 columns = len(data[0])

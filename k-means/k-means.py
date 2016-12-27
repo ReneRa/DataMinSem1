@@ -155,7 +155,7 @@ def getMaximalBIC (maxClusters, data):
         else:
             maximalBIC = currentBIC
             maximalBICPosition = k
-    return k, maximalBIC
+    return maximalBICPosition, maximalBIC
         
 
     
@@ -169,8 +169,11 @@ def compute_BIC(data, centroids, assignedCluster, k):
     returns BIC value for one k
     """
     #number of clusters
-    m = k
     n = []
+
+    #size of data set
+    N = len(data)
+    d = len(data[0])
     
     for num in range(0,k):
         #list of indices for datapoints assigned to chosen cluster
@@ -180,79 +183,33 @@ def compute_BIC(data, centroids, assignedCluster, k):
         #Get the number of data points of each dimension to create mean
         listLength = sum(1 for x in temparray if isinstance(x,list))
         n.append (listLength);
-    
-    #size of data set
-    N = len(data)
-    d = len(data[0])
 
     SSE = calculateSumSquaredError (data, centroids, assignedCluster, 2)
-    print ("SSE: " + str(SSE))
-    print ("data entries: " + str(N))
-    print ("variable entries: " + str(d))
-    print ("cluster sizes: " + str(n))
-    print ("K: " + str(k))
     
     #compute variance for all clusters beforehand
-    cl_var = (1.0 / (N - m) / d) * SSE
+    cl_var = (1.0 / (N - k) / d) * SSE
 
-    const_term = 0.5 * m * np.log(N) * (d+1)
+    const_term = 0.5 * k * np.log(N) * (d+1)
 
     BIC = np.sum([n[i] * np.log(n[i]) -
                n[i] * np.log(N) -
              ((n[i] * d) / 2) * np.log(2*np.pi*cl_var) -
-             ((n[i] - 1) * d/ 2) for i in range(m)]) - const_term
-
+             ((n[i] - 1) * d/ 2) for i in range(k)]) - const_term*k*d
+    
+    #BIC2 = N + N * np.log(2*np.pi) + N * np.log (SSE/N) + np.log(N) * (d+1)
 
     return BIC
     
-    @classmethod
-    def bic(cls, clusters, centroids):
-        num_points = sum(len(cluster) for cluster in clusters)
-        num_dims = clusters[0][0].shape[0]
 
-        log_likelihood = _loglikelihood(num_points, num_dims, clusters, centroids)
-        num_params = _free_params(len(clusters), num_dims)
-
-        return log_likelihood - num_params / 2.0 * np.log(num_points)
-        
-    @classmethod
-    def _free_params(cls, num_clusters, num_dims):
-        return num_clusters * (num_dims + 1)
-
-
-    @classmethod
-    def _loglikelihood(cls, num_points, num_dims, clusters, centroids):
-        ll = 0
-        for cluster in clusters:
-            fRn = len(cluster)
-            t1 = fRn * np.log(fRn)
-            t2 = fRn * np.log(num_points)
-            variance = _cluster_variance(num_points, clusters, centroids) or np.nextafter(0, 1)
-            t3 = ((fRn * num_dims) / 2.0) * np.log((2.0 * np.pi) * variance)
-            t4 = (fRn - 1.0) / 2.0
-            ll += t1 - t2 - t3 - t4
-        return ll
-
-
-    @classmethod
-    def _cluster_variance(cls, num_points, clusters, centroids):
-        s = 0
-        denom = float(num_points - len(centroids))
-        for cluster, centroid in zip(clusters, centroids):
-            distances = calculate_LDistance(cluster, centroid, 2)
-            s += (distances*distances).sum()
-        return s / denom
-
-    
-    
-#createElbowGraph(maxClusters, data)
+createElbowGraph(maxClusters, data)
 createBICGraph(maxClusters, data)
 
 #startpoint to measure the runtime
 startTime = time.time()
+#calculating k
+k = getMaximalBIC(maxClusters, data)[0]
 #calling the function
-k=3
-kmeans(data, k, centroids, assignedCluster, newCentroids)
+print (kmeans(data, k, centroids, assignedCluster, newCentroids))[0]
 #finish to measure the runtime
 elapsedTime = time.time() - startTime
-print('The runtime for clustering is: ' + str(elapsedTime))
+print('The runtime for clustering with ' + str(k) + ' clusters is: ' + str(elapsedTime))

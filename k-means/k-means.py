@@ -30,7 +30,7 @@ centroids = []
 assignedCluster = []
 newCentroids = []
 
-maxClusters = 10
+maxClusters = 6
 maxIterations = 300
 
 #main function, kmeans
@@ -117,9 +117,13 @@ def calculateSumSquaredError (data, centroids, assignedCluster, lNorm):
     
 def createElbowGraph (maxClusters, data):
     SSE = []
+    cluster = []
     for k in range (1, maxClusters+1):
-        SSE.append(kmeans(data, k, centroids, assignedCluster, newCentroids))
-    plt.plot([numberCluster for numberCluster in range (1, maxClusters+1)], SSE); 
+        kMeans = kmeans(data, k, centroids, assignedCluster, newCentroids)
+        SSE.append(calculateSumSquaredError (data, kMeans[0], kMeans[1], 2))
+        cluster.append(k)
+           
+    plt.plot(cluster, SSE); 
     plt.xlabel('#Clusters')
     plt.ylabel('SSE')
     plt.title('Elbow Graph')
@@ -132,8 +136,7 @@ def createBICGraph (maxClusters, data):
     for k in range (1, maxClusters+1):
         clusterResult = kmeans(data, k, centroids, assignedCluster, newCentroids)
         BIC = compute_BIC(data, clusterResult[0], clusterResult[1], k)
-        print ("BIC for k=" + str(k) + ":")
-        print (BIC)
+        #print ("BIC for k=" + str(k) + ": " + str(BIC))
         allBIC.append(BIC)
     plt.plot([numberCluster for numberCluster in range (1, maxClusters+1)], allBIC); 
     plt.xlabel('#Clusters')
@@ -147,7 +150,7 @@ def getMaximalBIC (maxClusters, data):
     maximalBICPosition = 1;
     clusterResult = kmeans(data, maximalBICPosition, centroids, assignedCluster, newCentroids)
     maximalBIC = compute_BIC(data, clusterResult[0], clusterResult[1], maximalBICPosition)
-    for k in range (2, maxClusters):
+    for k in range (2, maxClusters+1):
         clusterResult = kmeans(data, k, centroids, assignedCluster, newCentroids)
         currentBIC = compute_BIC(data, clusterResult[0], clusterResult[1], k)
         if (currentBIC<=maximalBIC):
@@ -209,7 +212,8 @@ startTime = time.time()
 #calculating k
 k = getMaximalBIC(maxClusters, data)[0]
 #calling the function
-print (kmeans(data, k, centroids, assignedCluster, newCentroids))[0]
+print ("centroids for k-means with " + str(k) + ":")
+print (kmeans(data, k, centroids, assignedCluster, newCentroids)[0])
 #finish to measure the runtime
 elapsedTime = time.time() - startTime
-print('The runtime for clustering with ' + str(k) + ' clusters is: ' + str(elapsedTime))
+print('The total runtime for clustering with ' + str(k) + ' clusters is: ' + str(elapsedTime))

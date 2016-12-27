@@ -26,6 +26,7 @@ finalNumberOfDimensions = 2
 maxClusters = 4
 maxIterations = 300
 
+#TODO: Clean the dataset @Rene
 filename = "GadgetManiacs_Cluster.xlsx"
 # parse_cols = "W:AL" for monetary data (cols Q-AC in supermarket dataset)
 dataSel = pandas.read_excel(filename, parse_cols = "J:O")
@@ -209,9 +210,11 @@ def compute_BIC(data, centroids, assignedCluster, k):
     #BIC2 = N + N * np.log(2*np.pi) + N * np.log (SSE/N) + np.log(N) * (d+1)
 
     return BIC
-    #Adding the index to each data point and plotting the result
+    
+#Create a more dynamic plotting approach @Rene
 def plotting(dataPointsIndex, centroids):
     kmeans(data, k, centroids, assignedCluster, newCentroids)
+    #Adding the index to each datapoint
     counter = 0
     for dataPoint in dataPointsIndex:
         data[counter].append(int(dataPoint))
@@ -221,8 +224,8 @@ def plotting(dataPointsIndex, centroids):
     counter = 0    
     for centroid in KMeans:
         KMeans[counter][2] = int(KMeans[counter][2])
-        counter += 1          
-    #print(kmeans(data, k, centroids, assignedCluster, newCentroids)[0])    
+        counter += 1             
+    #plotting the data in external class scatter_plot
     plotClusters(KMeans, data)
 
 

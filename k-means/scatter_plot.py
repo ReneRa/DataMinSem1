@@ -27,17 +27,3 @@ def plotClusters(centroids, points):
 
     fig.canvas.draw()
     fig.show()
-
-
-#if __name__ == "__main__":
-#    from random import randint, random
-#    
-#    clusters = 3
-#    numberOfPoints = 50
-#    
-#    # generate random centroids with coordinates between 0 and 100
-#    centroids = [[random() * 100, random() * 100] for i in range(clusters)]
-#    # generate random points with coordinates between 0 and 100
-#    points = [[random() * 100, random() * 100, randint(1, clusters)] for i in range(numberOfPoints)]      
-#    
-#    plotClusters(centroids, points)

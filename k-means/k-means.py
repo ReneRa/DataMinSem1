@@ -38,6 +38,8 @@ columns = len(data[0])
 
 #main function, kmeans
 def kmeans(data, k, centroids, assignedCluster, newCentroids):
+    centroids = []
+
     #initialize random centroids
    centroids = initialize_cluster(data, centroids, k) 
    i=0
@@ -70,6 +72,48 @@ def kmeans(data, k, centroids, assignedCluster, newCentroids):
 def initialize_cluster(data, centroids, k):
     for cluster in range(0, k):
         centroids.append(ran.choice(data))
+    return centroids
+    
+# Use the k means plus plus method to initialize the centroids
+def initialize_plus(data, k):
+    centroids.append(ran.choice(data))
+    
+    for cluster in range(1, k):
+        # Calculate distance to nearest centroid for each data point  
+        minDistances = [] # Holds the distances to the nearest centroid for each data point
+        totalDistance = 0        
+
+        for datapoint in data:
+            # Store distances to all clusters and pick nearest from this
+            distances = [] 
+
+            for centroid in centroids:
+                distance = 0
+                for i in range(0, len(datapoint)):
+                    distance += abs(datapoint[i] - centroid[i])
+                distances.append(pow(distance, 2))
+                
+            # Pick the nearest cluster for the current data point
+            minDistances.append([data.index(datapoint), min(distances)])
+            totalDistance += min(distances)
+        
+        # Fill a cummulative list, 0 to 1, with appropiate probabilities, which is used to pick the new centroid by weighted probability
+        cumProbabilities = []
+        previousProb = 0
+        for minDistance in minDistances:
+            probability = (minDistance[1]/totalDistance) * 100
+            if minDistance == minDistances[0]:
+                cumProbabilities.append([minDistance[0], probability])
+            else:
+                cumProbabilities.append([minDistance[0], previousProb + probability])
+            previousProb += probability
+
+        r = ran.uniform(0.0, 100.0)
+        for cumProbability in cumProbabilities:
+            if r < cumProbability[1]:
+                centroids.append(data[cumProbability[0]])
+                break
+
     return centroids
     
 # assigns data points to the nearest centroid

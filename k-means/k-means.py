@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Sat Dec 3 21:33:36 2016
-
+Created on Sat Dec 3 21:33:36 201
 @author: Rene, Jonathan, Marnik
 """
 
@@ -25,8 +24,8 @@ maxIterations = 300
 filename = "GadgetManiacs_Cleaned.xlsx"
 # parse_cols = "W:AL" for monetary data (cols Q-AC in supermarket dataset)
 dataSel = pandas.read_excel(filename, parse_cols = "J:O")
-originalData = dataSel.values.tolist()
-data = PCA(finalNumberOfDimensions).fit_transform(originalData).tolist()
+data = dataSel.values.tolist()
+#data = PCA(finalNumberOfDimensions).fit_transform(originalData).tolist()
 
 lines = len(data)
 columns = len(data[0])
@@ -51,9 +50,11 @@ def kmeans(k):
         newCentroids [:] = recalculate_Centroids(assignedCluster, k)
         # recognizing natural finish point
         if initialCentroids == newCentroids:
+            print('iterations = ' + str(num))
             break;
 
         if (num==maxIterations):
+            print('used max iterations..')
             assignedCluster [:] = assign_Centroid(newCentroids, k)
             
         initialCentroids [:] = list(newCentroids)
@@ -287,7 +288,7 @@ def normalizeData(data):
         newdata.append(columndata)
     '''
 
-'''    
+
 #Create a more dynamic plotting approach @Rene
 #TODO: Create a more dynamic plotting approach @Rene
 def plotting(dataPointsIndex, centroids):
@@ -311,13 +312,13 @@ def plotting(dataPointsIndex, centroids):
 #def calculate_Average(data, column):
 #    lines = len(data)    
    
-createElbowGraph(maxClusters, data)
-createBICGraph(maxClusters, data)
+#createElbowGraph(maxClusters, data)
+#createBICGraph(maxClusters, data)
 
 #startpoint to measure the runtime
 startTime = time.time()
 #calculating k
-k = getMaximalBIC(maxClusters, data)[0]
+#k = getMaximalBIC(maxClusters, data)[0]
 #Plot the Clustering result
 plotting(dataPointsIndex, centroids)
 #calling the function
@@ -330,7 +331,8 @@ print (stats)
 #finish to measure the runtime
 elapsedTime = time.time() - startTime
 '''
-for i in range (0,10):
+for i in range (0,5):
     kMeans = kmeans(4)
-    print (kMeans[0])
+    #print (kMeans[0])
     print(calculateSumSquaredError (kMeans[0], kMeans[1], 2))
+    '''

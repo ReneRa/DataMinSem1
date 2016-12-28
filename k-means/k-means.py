@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-TODO: act like this was created earlier?
 Created on Sat Dec 3 21:33:36 2016
 
 @author: Rene, Jonathan, Marnik
@@ -40,7 +39,7 @@ def kmeans(k):
     assignedCluster = []
     newCentroids = []
     i=0
-    initialCentroids = initialize_cluster(k)
+    initialCentroids = initialize_plus(k)
     # adjust centroids by iteration, stop when finished or max iterations
     for num in range(i, maxIterations):
         #TODO: how to copy elements?
@@ -68,11 +67,12 @@ def initialize_cluster(k):
     localCentroids = [];
     for cluster in range(0, k):
         ch = ran.choice(data)
-        print (ch)
         localCentroids.append(ch)
+    print (localCentroids)
     return localCentroids
     
 # Use the k means plus plus method to initialize the centroids
+# TODO: Use distance function
 def initialize_plus(k):
     localCentroids = [];
     localCentroids.append(ran.choice(data))
@@ -88,10 +88,8 @@ def initialize_plus(k):
             distances [:] = [] 
 
             for centroid in localCentroids:
-                distance = 0
-                for i in range(0, len(datapoint)):
-                    distance += abs(datapoint[i] - centroid[i])
-                distances.append(pow(distance, 2))
+                distance = calculate_LDistance(datapoint, centroid, 2)   
+                distances.append(distance)
                 
             # Pick the nearest cluster for the current data point
             minDistances.append([data.index(datapoint), min(distances)])
@@ -136,6 +134,13 @@ def assign_Centroid(localCentroids, k):
         distance [:] = []
         j =j+1
     return localCluster
+
+'''
+    L-Norm calculation:
+        lNorm = 1: Manhattan
+        lNorm = 2: Euclidean
+        
+'''    
     
 def calculate_LDistance (currentData, currentCentroid, lNorm):
     return pow(sum([pow(abs(currentData - currentCentroid),lNorm) for currentData, currentCentroid in zip(currentData, currentCentroid)]),(1/lNorm))
@@ -266,7 +271,7 @@ def getClusterStatistics (assignedClusters, k):
     return stat
 
     
-    ''' 
+    '''
 def normalizeData(data):
     lines = len(data)
     columns = len(data[0])

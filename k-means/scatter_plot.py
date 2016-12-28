@@ -7,9 +7,9 @@ def plotClusters(centroids, points):
 #    markers = ["^", "s", ""]
 
     fig, ax = plot.subplots()
-    
-  
-     
+
+
+
      
     index = 0
     for point in points:

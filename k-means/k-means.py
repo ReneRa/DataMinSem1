@@ -23,7 +23,7 @@ maxClusters = 8
 maxIterations = 300
 
 #TODO: Clean the dataset @Rene
-filename = "GadgetManiacs_Cluster.xlsx"
+filename = "GadgetManiacs_Cleaned.xlsx"
 # parse_cols = "W:AL" for monetary data (cols Q-AC in supermarket dataset)
 dataSel = pandas.read_excel(filename, parse_cols = "J:O")
 originalData = dataSel.values.tolist()
@@ -284,6 +284,7 @@ def normalizeData(data):
 
 '''    
 #Create a more dynamic plotting approach @Rene
+#TODO: Create a more dynamic plotting approach @Rene
 def plotting(dataPointsIndex, centroids):
     kmeans(data, k, centroids, assignedCluster, newCentroids)
     #Adding the index to each datapoint

@@ -23,7 +23,7 @@ assignedCluster = []
 newCentroids = []
 dataPointsIndex = []
 finalNumberOfDimensions = 2
-maxClusters = 4
+maxClusters = 12
 maxIterations = 300
 
 #TODO: Clean the dataset @Rene
@@ -41,10 +41,10 @@ def kmeans(data, k, centroids, assignedCluster, newCentroids):
     centroids = []
 
     #initialize random centroids
-   centroids = initialize_cluster(data, centroids, k) 
-   i=0
-   # adjust centroids by iteration, stop when finished or max iterations
-   for num in range(i, maxIterations):
+    centroids = initialize_cluster(data, centroids, k) 
+    i=0
+    # adjust centroids by iteration, stop when finished or max iterations
+    for num in range(i, maxIterations):
         dataPointsIndex[:] = assignedCluster
         assignedCluster =[]  #delete values in list
         newCentroids =[]     #delete values in list
@@ -63,7 +63,7 @@ def kmeans(data, k, centroids, assignedCluster, newCentroids):
    # print ("\nSSE for k = " + str(k) + ": ")
    # SSE = calculateSumSquaredError(data, centroids, assignedCluster, 2)
    # print (SSE)
-   return centroids, assignedCluster, dataPointsIndex, newCentroids
+    return centroids, assignedCluster, dataPointsIndex, newCentroids
    
 
 #TODO: make sure the same point is not picked twice? - could be an improvement as well...
@@ -305,7 +305,6 @@ def plotting(dataPointsIndex, centroids):
     
 createElbowGraph(maxClusters, data)
 createBICGraph(maxClusters, data)
-
 
 #startpoint to measure the runtime
 startTime = time.time()

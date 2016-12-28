@@ -12,8 +12,10 @@ class kmeans():
         # Calculate initial centroids
         if self.initializationMethod == "plus":
             initialCentroids = self.initializePlus(k)
-        else:
+        elif self.initializationMethod == "normal":
             initialCentroids = self.initializeClusters(k)
+        elif self.initializationMethod == "spread":
+            initialCentroids = self.initializeSpread(k)
 
         # adjust centroids by iteration, stop when finished or max iterations
         for num in range(0, Statics.maxIterations):
@@ -36,7 +38,7 @@ class kmeans():
 
     # initializes k centroids
     # picks random data points as initial centroids
-    def initializeCluster(self, k):
+    def initializeClusters(self, k):
         centroids = [];
         for cluster in range(0, k):
             ch = ran.choice(Statics.data)
@@ -80,6 +82,44 @@ class kmeans():
                 if r < cumProbability[1]:
                     centroids.append(Statics.data[cumProbability[0]])
                     break
+
+        return centroids
+
+    # Picks points as far away from each other as possible as initial clusters
+    def initializeSpread(self, k):
+        centroids = []
+
+        #  Get minimum values for all dimensions and use these as first centroid
+        minimumValues = []
+        for dataPoint in Statics.data:
+            if dataPoint == Statics.data[0]:
+                for dimension in range(0, len(dataPoint)):
+                    minimumValues.append(dataPoint[dimension])
+            else:
+                for dimension in range(0, len(dataPoint)):
+                    if dataPoint[dimension] < minimumValues[dimension]:
+                        minimumValues[dimension] = dataPoint[dimension]
+        centroids.append(minimumValues)
+
+        # Calculate all distances from data points to their nearest cluster
+        for cluster in range(1, k):
+            # Calculate distance to nearest centroid for each data point
+            minDistances = []  # Holds the distances to the nearest centroid for each data point
+            distances = []
+            totalDistance = 0
+
+            for datapoint in Statics.data:
+                # Store distances to all clusters and pick nearest from this
+                distances[:] = []
+
+                for centroid in centroids:
+                    distances.append(self.calculate_LDistance(datapoint, centroid, 2))
+
+                # Pick closest cluster for the current data point
+                minDistances.append(min(distances))
+
+            # Select the data point of which its nearest cluster is the furthest away, and use this as the new centroid
+            centroids.append(Statics.data[minDistances.index(max(minDistances))])
 
         return centroids
 

@@ -4,9 +4,9 @@ from sklearn.decomposition.pca import PCA
 finalNumberOfDimensions = 2
 maxClusters = 8
 maxIterations = 300
-maxClusters = 5
+maxClusters = 10
 
-initializationMethod = 'plus'
+initializationMethod = 'spread'  # normal, plus or spread
 
 #TODO: Clean the dataset @Rene
 filename = "../GadgetManiacs_Cleaned.xlsx"

@@ -27,7 +27,8 @@ def getMaximalBIC():
 kMeans = KMeans.kmeans(Statics.initializationMethod)
 plotter = Plotter.Plot(kMeans)
 
-k = getMaximalBIC()[0]
+#k = getMaximalBIC()[0]
+k = 4
 
 if createElbowGraph:
     plotter.createElbowGraph()

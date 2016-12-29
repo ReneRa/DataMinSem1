@@ -1,7 +1,7 @@
 import pandas
 from sklearn.decomposition.pca import PCA
 
-finalNumberOfDimensions = 2
+finalNumberOfDimensions = 6
 maxClusters = 8
 maxIterations = 300
 maxClusters = 10
@@ -17,3 +17,23 @@ data = PCA(finalNumberOfDimensions).fit_transform(originalData).tolist()
 
 lines = len(data)
 columns = len(data[0])
+
+def normalizeData():    
+    for column in range(0, columns):
+        avg = calculate_Average(column)
+        stddev = calculate_StandardDeviation(column)
+        for line in range (0, lines):
+            data[line][column] = (data[line][column]-avg)/stddev
+    return data
+
+def calculate_Average(column):
+     return sum([data [line][column] for line in range (0, lines)])/lines
+    
+def calculate_StandardDeviation(column):
+     return pow(calculate_Variance(column),1/2)
+     
+def calculate_Variance(column):
+     avg = calculate_Average(column)
+     return sum([pow(data[line][column],2)-avg for line in range (0, lines)])
+     
+data = normalizeData()

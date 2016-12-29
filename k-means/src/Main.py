@@ -4,8 +4,8 @@ import Statics
 
 import time
 
-createElbowGraph = False
-createBICGraph = False
+createElbowGraph = True
+createBICGraph = True
 showClusterStats = False
 
 

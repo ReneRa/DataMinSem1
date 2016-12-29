@@ -26,7 +26,6 @@ class kmeans():
             newCentroids [:] = self.recalculate_Centroids(assignedCluster, k)
             # recognizing natural finish point
             if initialCentroids == newCentroids:
-                print('iterations: ' + num)
                 break;
 
             if num==Statics.maxIterations:
@@ -116,7 +115,7 @@ class kmeans():
                     distances.append(self.calculate_LDistance(datapoint, centroid, 2))
 
                 # Pick closest cluster for the current data point
-                minDistances.append(min(distances))
+                minDistances.append(sum(distances))
 
             # Select the data point of which its nearest cluster is the furthest away, and use this as the new centroid
             centroids.append(Statics.data[minDistances.index(max(minDistances))])

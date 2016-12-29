@@ -4,9 +4,9 @@ import Statics
 
 import time
 
-createElbowGraph = False
+createElbowGraph = True
 createBICGraph = True
-showClusterStats = False
+showClusterStats = True
 
 
 def getMaximalBIC():

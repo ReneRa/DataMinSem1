@@ -38,8 +38,3 @@ def calculate_Variance(column):
      
 data = normalizeData()
 
-for column in range (0, columns):
-    print("avg: " + str(calculate_Average(column)))
-    print("std dev. " + str(calculate_StandardDeviation(column)))
-    print("min " + str(min([data[line][column] for line in range (0, lines)])))
-    print("max " + str(max([data[line][column] for line in range (0, lines)])))

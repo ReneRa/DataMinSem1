@@ -26,6 +26,7 @@ class kmeans():
             newCentroids [:] = self.recalculate_Centroids(assignedCluster, k)
             # recognizing natural finish point
             if initialCentroids == newCentroids:
+                print('iterations: ' + num)
                 break;
 
             if num==Statics.maxIterations:

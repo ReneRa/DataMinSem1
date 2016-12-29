@@ -13,7 +13,7 @@ def plotClusters(centroids, points):
      
     index = 0
     for point in points:
-        ax.scatter(point[0], point[1], color=colors[point[2] - 1], s=600, marker=markers[index])
+        ax.scatter(point[0], point[1], color=colors[point[-1] - 1], s=200, marker=markers[index])
         #ax.annotate(str(point[2]), (point[0] + 1, point[1] + 1))
         index = (index + 1) % len(colors)
         plot.title('Principal Component Analysis')

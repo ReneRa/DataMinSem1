@@ -14,7 +14,8 @@ class Plot():
         cluster = []
         for k in range (1, Statics.maxClusters+1):
             result = self.kMeans.main(k)
-            SSE.append(self.kMeans.calculateSumSquaredError (result[0], result[1], 2))
+            currSSE = self.kMeans.calculateSumSquaredError (result[0], result[1], 2)
+            SSE.append(currSSE)
             cluster.append(k)
 
         plt.plot(cluster, SSE);
@@ -38,7 +39,7 @@ class Plot():
         plt.title('Bayesian Information Criterion Graph')
         plt.show();
 
-        return
+        return allBIC
 
     def compute_BIC(self, centroids, assignedCluster, k):
         """
@@ -74,7 +75,7 @@ class Plot():
         BIC = np.sum([n[i] * np.log(n[i]) -
                    n[i] * np.log(N) -
                  ((n[i] * d) / 2) * np.log(2*np.pi*cl_var) -
-                 ((n[i] - 1) * d/ 2) for i in range(k)]) - const_term#*k*(d+1)
+                 ((n[i] - 1) * d/ 2) for i in range(k)]) - const_term*k*(d+1)
 
         #BIC2 = N + N * np.log(2*np.pi) + N * np.log (SSE/N) + np.log(N) * (d+1)
 

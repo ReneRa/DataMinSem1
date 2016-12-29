@@ -4,7 +4,7 @@ import Statics
 
 import time
 
-createElbowGraph = True
+createElbowGraph = False
 createBICGraph = True
 showClusterStats = False
 
@@ -27,14 +27,13 @@ def getMaximalBIC():
 kMeans = KMeans.kmeans(Statics.initializationMethod)
 plotter = Plotter.Plot(kMeans)
 
-#k = getMaximalBIC()[0]
-k = 4
+k=4
 
 if createElbowGraph:
     plotter.createElbowGraph()
 if createBICGraph:
-    plotter.createBICGraph()
-
+    BIC = plotter.createBICGraph()
+    k = BIC.index(max(BIC)) + 1
 
 startTime = time.time()
 result = kMeans.main(k)

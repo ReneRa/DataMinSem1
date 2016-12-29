@@ -1,12 +1,12 @@
 import pandas
 from sklearn.decomposition.pca import PCA
 
-finalNumberOfDimensions = 6
+finalNumberOfDimensions = 2
 maxClusters = 8
 maxIterations = 300
 maxClusters = 10
 
-initializationMethod = 'spread'  # normal, plus or spread
+initializationMethod = 'plus'  # normal, plus or spread
 
 #TODO: Clean the dataset @Rene
 filename = "../GadgetManiacs_Cleaned.xlsx"
@@ -34,6 +34,12 @@ def calculate_StandardDeviation(column):
      
 def calculate_Variance(column):
      avg = calculate_Average(column)
-     return sum([pow(data[line][column],2)-avg for line in range (0, lines)])
+     return sum([pow((data[line][column] - avg),2) for line in range (0, lines)])/lines
      
 data = normalizeData()
+
+for column in range (0, columns):
+    print("avg: " + str(calculate_Average(column)))
+    print("std dev. " + str(calculate_StandardDeviation(column)))
+    print("min " + str(min([data[line][column] for line in range (0, lines)])))
+    print("max " + str(max([data[line][column] for line in range (0, lines)])))

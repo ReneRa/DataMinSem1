@@ -66,7 +66,6 @@ class Plot():
             n.append (listLength);
 
         SSE = self.kMeans.calculateSumSquaredError (centroids, assignedCluster, 2)
-
         #compute variance for all clusters beforehand
         cl_var = (1.0 / (N - k) / d) * SSE
 

@@ -106,7 +106,6 @@ class kmeans():
             # Calculate distance to nearest centroid for each data point
             minDistances = []  # Holds the distances to the nearest centroid for each data point
             distances = []
-            totalDistance = 0
 
             for datapoint in Statics.data:
                 # Store distances to all clusters and pick nearest from this
